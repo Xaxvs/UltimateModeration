@@ -76,7 +76,7 @@ public final class SafeFileWrite {
             moved = true;
 
         } finally {
-            if (!moved) {
+            if (moved) {
                 Files.deleteIfExists(temp);
             }
         }
