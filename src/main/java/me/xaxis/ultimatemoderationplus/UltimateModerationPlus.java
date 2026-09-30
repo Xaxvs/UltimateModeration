@@ -176,7 +176,7 @@ public class UltimateModerationPlus extends JavaPlugin {
         new Metrics(this, bstatsPluginId);
 
         getServer().getPluginManager().registerEvents(new PlayerJoin(playerProfileManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerLogin(playerProfileManager, langManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerLogin(playerProfileManager, langManager, this), this);
         getCommand("note").setExecutor(new NoteCommand(langManager, playerProfileManager, configSettings));
         getCommand("warn").setExecutor(new WarnCommand(configSettings, playerProfileManager, langManager));
         getCommand("kick").setExecutor(new KickCommand(langManager, playerProfileManager, configSettings));
@@ -186,6 +186,7 @@ public class UltimateModerationPlus extends JavaPlugin {
         getCommand("unban").setExecutor(new UnbanCommand(langManager, playerProfileManager));
         getCommand("tempban").setExecutor(new TempBanCommand(langManager, playerProfileManager, configSettings));
         getCommand("tempmute").setExecutor(new TempMuteCommand(langManager, configSettings, playerProfileManager));
+        getCommand("freeze").setExecutor(new FreezeCommand(langManager, configSettings, playerProfileManager));
     }
 
     @Override
