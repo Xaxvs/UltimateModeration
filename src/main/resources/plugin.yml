@@ -23,3 +23,27 @@ commands:
     description: Kick a player.
     usage: /<command> <player> <reason>
     permission: ultimatemoderationplus.admin.kick-command
+  freeze:
+    description: Freeze a player.
+    usage: /<command> <player>
+    permission: ultimatemoderationplus.admin.freeze-command
+  unfreeze:
+    description: Unfreeze a player.
+    usage: /<command> <player>
+    permission: ultimatemoderationplus.admin.unfreeze-command
+  ban:
+    description: Ban a player.
+    usage: /<command> <player> <reason>
+    permission: ultimatemoderationplus.admin.ban-command
+  unban:
+    description: Unban a player.
+    usage: /<command> <player>
+    permission: ultimatemoderationplus.admin.unban-command
+  tempmute:
+    description: Temporarily mute a player.
+    usage: /<command> <player> <duration> <reason>
+    permission: ultimatemoderationplus.admin.tempmute-command
+  tempban:
+    description: Temporarily ban a player.
+    usage: /<command> <player> <duration> <reason>
+    permission: ultimatemoderationplus.admin.tempban-command
