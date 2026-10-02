@@ -14,7 +14,11 @@ public enum Permissions {
     BAN_COMMAND("ultimatemoderationplus.admin.ban-command"),
     UNBAN_COMMAND("ultimatemoderationplus.admin.unban-command"),
     TEMPBAN_COMMAND("ultimatemoderationplus.admin.tempban-command"),
-    TEMPMUTE_COMMAND("ultimatemoderationplus.admin.tempmute-command")
+    TEMPMUTE_COMMAND("ultimatemoderationplus.admin.tempmute-command"),
+    FREEZE_COMMAND("ultimatemoderationplus.admin.freeze-command"),
+    UNFREEZE_COMMAND("ultimatemoderationplus.admin.unfreeze-command"),
+    FREEZE_BYPASS("ultimatemoderationplus.admin.freeze-command.bypass")
+    ;
     ;
     private final String permission;
 

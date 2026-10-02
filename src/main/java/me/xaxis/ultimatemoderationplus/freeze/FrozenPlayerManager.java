@@ -1,11 +1,16 @@
 package me.xaxis.ultimatemoderationplus.freeze;
 
+import org.bukkit.entity.Player;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 public class FrozenPlayerManager {
+
+    public FrozenPlayerManager() {
+    }
 
     private final Set<UUID> frozenPlayers = new HashSet<>();
 

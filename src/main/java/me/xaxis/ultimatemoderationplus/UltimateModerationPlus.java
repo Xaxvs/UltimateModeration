@@ -3,8 +3,10 @@ package me.xaxis.ultimatemoderationplus;
 import me.xaxis.ultimatemoderationplus.commands.*;
 import me.xaxis.ultimatemoderationplus.config.ConfigSettingsLoader;
 import me.xaxis.ultimatemoderationplus.config.ConfigSettings;
+import me.xaxis.ultimatemoderationplus.freeze.FrozenPlayerManager;
 import me.xaxis.ultimatemoderationplus.lang.LangManager;
 import me.xaxis.ultimatemoderationplus.lang.LangYml;
+import me.xaxis.ultimatemoderationplus.listener.FrozenPlayerEventHandler;
 import me.xaxis.ultimatemoderationplus.listener.PlayerJoin;
 import me.xaxis.ultimatemoderationplus.listener.PlayerLogin;
 import me.xaxis.ultimatemoderationplus.player.PlayerProfileLoader;
@@ -30,6 +32,7 @@ public class UltimateModerationPlus extends JavaPlugin {
     private ConfigSettings configSettings;
     private LangManager langManager;
     private BukkitTask profileSaveTask;
+    private FrozenPlayerManager frozenPlayerManager;
 
     public LangManager getLangManager() {
         return langManager;
@@ -175,8 +178,11 @@ public class UltimateModerationPlus extends JavaPlugin {
         int bstatsPluginId = 34047;
         new Metrics(this, bstatsPluginId);
 
+        frozenPlayerManager = new FrozenPlayerManager();
+
         getServer().getPluginManager().registerEvents(new PlayerJoin(playerProfileManager), this);
         getServer().getPluginManager().registerEvents(new PlayerLogin(playerProfileManager, langManager, this), this);
+        getServer().getPluginManager().registerEvents(new FrozenPlayerEventHandler(frozenPlayerManager, configSettings, langManager), this);
         getCommand("note").setExecutor(new NoteCommand(langManager, playerProfileManager, configSettings));
         getCommand("warn").setExecutor(new WarnCommand(configSettings, playerProfileManager, langManager));
         getCommand("kick").setExecutor(new KickCommand(langManager, playerProfileManager, configSettings));
@@ -186,7 +192,8 @@ public class UltimateModerationPlus extends JavaPlugin {
         getCommand("unban").setExecutor(new UnbanCommand(langManager, playerProfileManager));
         getCommand("tempban").setExecutor(new TempBanCommand(langManager, playerProfileManager, configSettings));
         getCommand("tempmute").setExecutor(new TempMuteCommand(langManager, configSettings, playerProfileManager));
-        getCommand("freeze").setExecutor(new FreezeCommand(langManager, configSettings, playerProfileManager));
+        getCommand("freeze").setExecutor(new FreezeCommand(langManager, playerProfileManager, frozenPlayerManager));
+        getCommand("unfreeze").setExecutor(new UnfreezeCommand(langManager, playerProfileManager, frozenPlayerManager));
     }
 
     @Override

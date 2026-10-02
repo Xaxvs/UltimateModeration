@@ -20,10 +20,15 @@ public class ConfigSettingsLoader {
         return configuration.getLong("max-content-length");
     }
 
+    private boolean allowChatWhileFrozen() {
+        return configuration.getBoolean("allow-chat-while-frozen");
+    }
+
     public ConfigSettings load() {
         return new ConfigSettings(
                 getProfileAutoSaveInterval(),
-                getNoteMaxContentLength()
+                getNoteMaxContentLength(),
+                allowChatWhileFrozen()
         );
     }
 

@@ -23,7 +23,24 @@ public final class MainConfigValidation extends YamlValidator {
     @Override
     protected void validateFile(List<String> errors) {
         validateAutoSaveInterval(errors);
+        validateAllowChatWhileFrozen(errors);
         validateNoteMaxContentLength(errors);
+    }
+
+    private void validateAllowChatWhileFrozen(List<String> errors) {
+        if (!configuration.isSet("allow-chat-while-frozen")) {
+            errors.add(
+                    "The 'allow-chat-while-frozen' setting is missing."
+                            + " in the configuration file. Please add it with a value of true or false."
+            );
+        } else {
+            Object rawValue = configuration.get("allow-chat-while-frozen");
+            if (!(rawValue instanceof Boolean)) {
+                errors.add(
+                        "The 'allow-chat-while-frozen' setting must be a boolean (true or false)."
+                );
+            }
+        }
     }
 
     private void validateNoteMaxContentLength(List<String> errors) {

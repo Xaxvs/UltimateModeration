@@ -77,3 +77,16 @@ messages:
   tempban:
     usage: '&cUsage: /tempban <player> <duration> <reason>'
     banned-player: '&aYou have temp-banned {player} for {duration} for {reason}'
+
+  freeze:
+    usage: '&cUsage: /freeze <player>'
+    title: '&cYou have been frozen!'
+    freeze-bypass: '&cYou cannot freeze this player as they have the freeze bypass permission.'
+    you-are-frozen: '&cYou have been frozen by {staff}. You cannot move or perform any actions.'
+    subtitle: '&7You cannot move or perform any actions.'
+    froze-player: '&aYou have frozen {player}.'
+  unfreeze:
+    unfroze-player: '&aYou have unfrozen {player}.'
+    you-are-unfrozen: '&aYou have been unfrozen by {staff}. You can now move and perform actions.'
+    usage: '&cUsage: /unfreeze <player>'
+    player-not-frozen: '&cThat player is not frozen.'

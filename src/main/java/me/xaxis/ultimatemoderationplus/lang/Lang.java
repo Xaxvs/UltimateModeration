@@ -69,7 +69,24 @@ public enum Lang {
 
     // Temporary ban
     TEMPBAN_USAGE("messages.tempban.usage"),
-    TEMPBANNED_PLAYER("messages.tempban.banned-player");
+    TEMPBANNED_PLAYER("messages.tempban.banned-player"),
+
+    // Freeze
+    FREEZE_USAGE("messages.freeze.usage"),
+    FREEZE_TITLE("messages.freeze.title"),
+    YOU_ARE_FROZEN("messages.freeze.you-are-frozen"),
+    FREEZE_SUBTITLE("messages.freeze.subtitle"),
+    PLAYER_ALREADY_FROZEN("messages.freeze.player-already-frozen"),
+    FREEZE_BYPASS("messages.freeze.freeze-bypass"),
+    FROZE_PLAYER("messages.freeze.froze-player"),
+
+    // Unfreeze
+    UNFROZE_PLAYER("messages.unfreeze.unfroze-player"),
+    PLAYER_NOT_FROZEN("messages.unfreeze.player-not-frozen"),
+    YOU_ARE_UNFROZEN("messages.unfreeze.you-are-unfrozen"),
+    UNFREEZE_USAGE("messages.unfreeze.usage"),
+
+    ;
 
     private final String path;
 
