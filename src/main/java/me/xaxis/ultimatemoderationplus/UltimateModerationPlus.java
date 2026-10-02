@@ -7,6 +7,7 @@ import me.xaxis.ultimatemoderationplus.freeze.FrozenPlayerManager;
 import me.xaxis.ultimatemoderationplus.lang.LangManager;
 import me.xaxis.ultimatemoderationplus.lang.LangYml;
 import me.xaxis.ultimatemoderationplus.listener.FrozenPlayerEventHandler;
+import me.xaxis.ultimatemoderationplus.listener.PlayerChatEvent;
 import me.xaxis.ultimatemoderationplus.listener.PlayerJoin;
 import me.xaxis.ultimatemoderationplus.listener.PlayerLogin;
 import me.xaxis.ultimatemoderationplus.player.PlayerProfileLoader;
@@ -183,6 +184,10 @@ public class UltimateModerationPlus extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerJoin(playerProfileManager), this);
         getServer().getPluginManager().registerEvents(new PlayerLogin(playerProfileManager, langManager, this), this);
         getServer().getPluginManager().registerEvents(new FrozenPlayerEventHandler(frozenPlayerManager, configSettings, langManager), this);
+        getServer().getPluginManager().registerEvents(
+                new PlayerChatEvent(langManager, playerProfileManager, this),
+                this
+        );
         getCommand("note").setExecutor(new NoteCommand(langManager, playerProfileManager, configSettings));
         getCommand("warn").setExecutor(new WarnCommand(configSettings, playerProfileManager, langManager));
         getCommand("kick").setExecutor(new KickCommand(langManager, playerProfileManager, configSettings));

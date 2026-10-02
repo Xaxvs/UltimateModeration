@@ -58,7 +58,10 @@ public class UnfreezeCommand implements CommandExecutor {
 
         PlayerProfile playerProfile = playerProfileManager.getPlayerProfile(playerName);
         if (playerProfile == null) {
-            sender.sendMessage(langManager.getMessage(Lang.PLAYER_NOT_FOUND));
+            sender.sendMessage(langManager.replacePlaceholders(
+                    langManager.getMessage(Lang.PLAYER_NOT_FOUND),
+                    Map.of(Placeholders.PLAYER, playerName)
+            ));
             return true;
         }
 

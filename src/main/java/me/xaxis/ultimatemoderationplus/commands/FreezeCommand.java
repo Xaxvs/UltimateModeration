@@ -38,10 +38,10 @@ public class FreezeCommand implements CommandExecutor {
     public boolean onCommand(@NonNull CommandSender sender, @NonNull Command command, @NonNull String label, @NonNull String[] args) {
 
         String senderName;
-        if (!(sender instanceof Player)) {
-            senderName = "Console";
-        } else if (sender instanceof ConsoleCommandSender) {
+        if (sender instanceof Player) {
             senderName = sender.getName();
+        } else if (sender instanceof ConsoleCommandSender) {
+            senderName = "Console";
         } else {
             sender.sendMessage(langManager.getMessage(Lang.SENDER_NOT_VALID));
             return true;
@@ -61,7 +61,10 @@ public class FreezeCommand implements CommandExecutor {
         PlayerProfile playerProfile = playerProfileManager.getPlayerProfile(playerName);
 
         if (playerProfile == null) {
-            sender.sendMessage(langManager.getMessage(Lang.PLAYER_NOT_FOUND));
+            sender.sendMessage(langManager.replacePlaceholders(
+                    langManager.getMessage(Lang.PLAYER_NOT_FOUND),
+                    Map.of(Placeholders.PLAYER, playerName)
+            ));
             return true;
         }
         Player targetPlayer = Bukkit.getServer().getPlayer(playerProfile.playerId());

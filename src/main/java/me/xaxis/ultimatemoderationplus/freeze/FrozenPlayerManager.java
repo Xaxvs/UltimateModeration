@@ -6,13 +6,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FrozenPlayerManager {
 
     public FrozenPlayerManager() {
     }
 
-    private final Set<UUID> frozenPlayers = new HashSet<>();
+    private final Set<UUID> frozenPlayers = ConcurrentHashMap.newKeySet();
 
     public boolean isFrozen(UUID playerId) {
         return frozenPlayers.contains(playerId);

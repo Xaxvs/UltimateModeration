@@ -41,6 +41,7 @@ public class Utils {
             case 'h' -> 3_600_000L;
             case 'd' -> 86_400_000L;
             case 'w' -> 604_800_000L;
+            case 'y' -> 31_536_000_000L;
             default -> -1L;
         };
 

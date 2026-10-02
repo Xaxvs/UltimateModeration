@@ -19,8 +19,8 @@ public class PlayerProfile {
     private volatile Ban playerBan;
 
     public PlayerProfile(UUID playerId, String playerName, List<Note> notes, Mute playerMute, List<Warning> warnings, Ban playerBan) {
-        this.notes = notes;
-        this.warnings = warnings;
+        this.notes = new ArrayList<>(notes);
+        this.warnings = new ArrayList<>(warnings);
         this.playerId = playerId;
         this.playerBan = playerBan;
         this.playerName = playerName;
@@ -31,9 +31,9 @@ public class PlayerProfile {
         return new PlayerProfile(
                 playerId,
                 playerName,
-                List.of(),
+                new ArrayList<>(),
                 null,
-                List.of(),
+                new ArrayList<>(),
                 null
         );
     }

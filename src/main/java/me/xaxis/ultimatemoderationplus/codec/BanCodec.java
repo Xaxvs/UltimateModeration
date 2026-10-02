@@ -14,8 +14,8 @@ public class BanCodec implements ProfileEntryCodec<Ban>{
         Map<String, Object> entries = new HashMap<>();
         entries.put(PlayerProfileSchema.BAN_REASON, value.reason());
         entries.put(PlayerProfileSchema.BAN_STAFF_NAME, value.staffName());
-        entries.put(PlayerProfileSchema.BAN_TARGET_ID, value.playerId());
-        entries.put(PlayerProfileSchema.BAN_STAFF_ID, value.staffId());
+        entries.put(PlayerProfileSchema.BAN_TARGET_ID, value.playerId().toString());
+        entries.put(PlayerProfileSchema.BAN_STAFF_ID, value.staffId().toString());
         entries.put(PlayerProfileSchema.BAN_TIMESTAMP, value.timestamp());
         entries.put(PlayerProfileSchema.TIME_UNTIL, value.timeUntil());
         return entries;

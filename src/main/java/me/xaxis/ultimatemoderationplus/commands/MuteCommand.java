@@ -67,7 +67,7 @@ public class MuteCommand implements CommandExecutor {
         }
 
         String reason = String.join(
-                args[1],
+                "",
                 Arrays.copyOfRange(args, 1, args.length)
         );
 

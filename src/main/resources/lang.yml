@@ -85,6 +85,7 @@ messages:
     you-are-frozen: '&cYou have been frozen by {staff}. You cannot move or perform any actions.'
     subtitle: '&7You cannot move or perform any actions.'
     froze-player: '&aYou have frozen {player}.'
+    player-already-frozen: '&cThat player is already frozen.'
   unfreeze:
     unfroze-player: '&aYou have unfrozen {player}.'
     you-are-unfrozen: '&aYou have been unfrozen by {staff}. You can now move and perform actions.'
