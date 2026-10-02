@@ -86,6 +86,10 @@ public enum Lang {
     YOU_ARE_UNFROZEN("messages.unfreeze.you-are-unfrozen"),
     UNFREEZE_USAGE("messages.unfreeze.usage"),
 
+    // Staff Chat
+    STAFF_CHAT_USAGE("messages.staff-chat.usage"),
+    STAFF_CHAT_FORMAT("messages.staff-chat.format")
+
     ;
 
     private final String path;

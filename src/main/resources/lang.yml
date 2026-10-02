@@ -6,6 +6,20 @@ config-version: 1
 # If you use a placeholder in a message where it is not applicable, it will be displayed as-is.
 # If you use a placeholder in a message where it is applicable, it will be replaced with the actual value.
 # This applies to all placeholders in the messages section.
+# below is a list of all placeholders that can be used in the messages section, along with their descriptions.
+# {player} - The name of the player being acted upon.
+# {staff} - The name of the staff member performing the action.
+# {reason} - The reason for the action being performed.
+# {duration} - The duration of the action being performed.
+# {note-index} - The index of the note being acted upon.
+# {warn-index} - The index of the warn being acted upon.
+# {content-max-long} - The maximum length of content allowed for notes.
+# {value} - A generic placeholder for any value being acted upon.
+# {note-author} - The author of the note being acted upon.
+# {warn-author} - The author of the warn being acted upon.
+# {note-content} - The content of the note being acted upon.
+# {warn-content} - The content of the warn being acted upon.
+# {message} - A message that is sent.
 
 messages:
 
@@ -86,8 +100,13 @@ messages:
     subtitle: '&7You cannot move or perform any actions.'
     froze-player: '&aYou have frozen {player}.'
     player-already-frozen: '&cThat player is already frozen.'
+
   unfreeze:
     unfroze-player: '&aYou have unfrozen {player}.'
     you-are-unfrozen: '&aYou have been unfrozen by {staff}. You can now move and perform actions.'
     usage: '&cUsage: /unfreeze <player>'
     player-not-frozen: '&cThat player is not frozen.'
+
+  staff-chat:
+    usage: '&cUsage: /staffchat <message>'
+    format: '&8[&cStaff&8] &f{staff}: &7{message}'
