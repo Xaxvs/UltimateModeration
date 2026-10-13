@@ -28,194 +28,183 @@ import java.util.logging.Level;
 
 public class UltimateModerationPlus extends JavaPlugin {
 
-    private PlayerProfileLoader playerProfileLoader;
-    private PlayerProfileManager playerProfileManager;
-    private ConfigSettings configSettings;
-    private LangManager langManager;
-    private BukkitTask profileSaveTask;
-    private FrozenPlayerManager frozenPlayerManager;
+  private PlayerProfileLoader playerProfileLoader;
+  private PlayerProfileManager playerProfileManager;
+  private ConfigSettings configSettings;
+  private LangManager langManager;
+  private BukkitTask profileSaveTask;
+  private FrozenPlayerManager frozenPlayerManager;
 
-    public LangManager getLangManager() {
-        return langManager;
+  public LangManager getLangManager() {
+    return langManager;
+  }
+
+  @Override
+  public void onEnable() {
+
+    if (!getDataFolder().exists()) {
+      if (!getDataFolder().mkdirs()) {
+        getLogger().severe("Failed to create the necessary directories!");
+        getPluginLoader().disablePlugin(this);
+        return;
+      }
     }
 
-    @Override
-    public void onEnable() {
+    saveDefaultConfig();
 
-        if (!getDataFolder().exists()) {
-            if (!getDataFolder().mkdirs()) {
-                getLogger().severe("Failed to create the necessary directories!");
-                getPluginLoader().disablePlugin(this);
-                return;
-            }
-        }
+    MainConfigValidation configValidation = new MainConfigValidation(
+        getDataFolder().toPath().resolve("config.yml"),
+        getConfig());
 
-        saveDefaultConfig();
+    List<String> errors = configValidation.validate();
 
-        MainConfigValidation configValidation =
-                new MainConfigValidation(
-                        getDataFolder().toPath().resolve("config.yml"),
-                        getConfig()
-                );
+    if (!errors.isEmpty()) {
+      errors.forEach(getLogger()::severe);
+      getPluginLoader().disablePlugin(this);
+      return;
+    }
 
-        List<String> errors = configValidation.validate();
+    ConfigSettingsLoader loader = new ConfigSettingsLoader(getConfig());
+    configSettings = loader.load();
 
-        if (!errors.isEmpty()) {
-            errors.forEach(getLogger()::severe);
-            getPluginLoader().disablePlugin(this);
+    File profileFolder = getDataFolder().toPath().resolve("player-data").toFile();
+    if (!profileFolder.exists()) {
+      if (!profileFolder.mkdirs()) {
+        getLogger().severe("Unable to make player-data folder, disabling plugin!");
+        getPluginLoader().disablePlugin(this);
+        return;
+      }
+    }
+
+    playerProfileLoader = new PlayerProfileLoader(profileFolder.toPath(), getLogger());
+    playerProfileLoader
+        .loadProfilesAsync()
+        .whenComplete((profiles, throwable) -> {
+
+          if (!isEnabled()) {
             return;
-        }
+          }
 
-        ConfigSettingsLoader loader = new ConfigSettingsLoader(getConfig());
-        configSettings = loader.load();
+          getServer().getScheduler().runTask(
+              this,
+              () -> {
+                if (playerProfileLoader != null) {
+                  playerProfileLoader.close();
+                  playerProfileLoader = null;
+                }
 
-        File profileFolder = getDataFolder().toPath().resolve("player-data").toFile();
-        if (!profileFolder.exists()) {
-            if (!profileFolder.mkdirs()) {
-                getLogger().severe("Unable to make player-data folder, disabling plugin!");
-                getPluginLoader().disablePlugin(this);
-                return;
-            }
-        }
+                if (throwable != null) {
+                  getLogger().log(
+                      Level.SEVERE,
+                      "Failed to load profiles! "
+                          + "Disabling plugin.",
+                      throwable);
 
-        playerProfileLoader = new PlayerProfileLoader(profileFolder.toPath(), getLogger());
-        playerProfileLoader
-                .loadProfilesAsync()
-                .whenComplete((profiles, throwable) -> {
+                  getPluginLoader()
+                      .disablePlugin(this);
+                  return;
+                }
 
-                    if (!isEnabled()) {
-                        return;
-                    }
+                try {
+                  onPlayerProfileLoaderCompletion(
+                      profiles);
+                } catch (RuntimeException e) {
+                  getLogger().log(
+                      Level.SEVERE,
+                      "Failed to finish initialization. "
+                          + "Disabling plugin.",
+                      e);
 
-                    getServer().getScheduler().runTask(
-                            this,
-                            () -> {
-                                if (playerProfileLoader != null) {
-                                    playerProfileLoader.close();
-                                    playerProfileLoader = null;
-                                }
+                  getPluginLoader().disablePlugin(this);
+                }
+              });
+        });
+    // nothing should be written under this loadProfilesAsync()
+    // as player profiles are a vital part of the plugin
+  }
 
-                                if (throwable != null) {
-                                    getLogger().log(
-                                            Level.SEVERE,
-                                            "Failed to load profiles! "
-                                                    + "Disabling plugin.",
-                                            throwable
-                                    );
+  private void onPlayerProfileLoaderCompletion(List<PlayerProfile> profiles) {
 
-                                    getPluginLoader()
-                                            .disablePlugin(this);
-                                    return;
-                                }
+    PlayerProfileStorage playerProfileStorage = new PlayerProfileStorage(
+        getDataFolder().toPath().resolve("player-data"),
+        getLogger());
+    playerProfileManager = new PlayerProfileManager(profiles, playerProfileStorage, configSettings, getLogger());
 
-                                try {
-                                    onPlayerProfileLoaderCompletion(
-                                            profiles
-                                    );
-                                } catch (RuntimeException e) {
-                                    getLogger().log(
-                                            Level.SEVERE,
-                                            "Failed to finish initialization. "
-                                                    + "Disabling plugin.",
-                                            e
-                                    );
+    saveResource("lang.yml", false);
+    YamlConfiguration langConfiguration = YamlConfiguration.loadConfiguration(
+        getDataFolder().toPath().resolve("lang.yml").toFile());
+    LangValidator langValidator = new LangValidator(
+        getDataFolder().toPath().resolve("lang.yml"),
+        langConfiguration);
+    List<String> langErrors = langValidator.validate();
 
-                                    getPluginLoader().disablePlugin(this);
-                                }
-                            }
-                    );
-                });
-        //nothing should be written under this loadProfilesAsync()
-        //as player profiles are a vital part of the plugin
+    if (!langErrors.isEmpty()) {
+      langErrors.forEach(getLogger()::severe);
+      getPluginLoader().disablePlugin(this);
+      return;
     }
 
-    private void onPlayerProfileLoaderCompletion(List<PlayerProfile> profiles) {
+    LangYml langYml = new LangYml(langConfiguration);
+    langManager = new LangManager(langYml.loadMessages());
 
-        PlayerProfileStorage playerProfileStorage = new PlayerProfileStorage(
-                getDataFolder().toPath().resolve("player-data"),
-                getLogger()
-        );
-        playerProfileManager = new PlayerProfileManager(profiles, playerProfileStorage, configSettings, getLogger());
+    long autoSaveTicks = configSettings.profileAutoSaveInterval();
 
-        saveResource("lang.yml", false);
-        YamlConfiguration langConfiguration = YamlConfiguration.loadConfiguration(
-                getDataFolder().toPath().resolve("lang.yml").toFile()
-        );
-        LangValidator langValidator = new LangValidator(
-                getDataFolder().toPath().resolve("lang.yml"),
-                langConfiguration
-        );
-        List<String> langErrors = langValidator.validate();
+    profileSaveTask = getServer().getScheduler().runTaskTimer(
+        this,
+        playerProfileManager::saveAll,
+        autoSaveTicks,
+        autoSaveTicks);
 
-        if (!langErrors.isEmpty()) {
-            langErrors.forEach(getLogger()::severe);
-            getPluginLoader().disablePlugin(this);
-            return;
-        }
-
-        LangYml langYml = new LangYml(langConfiguration);
-        langManager = new LangManager(langYml.loadMessages());
-
-        long autoSaveTicks = configSettings.profileAutoSaveInterval();
-
-        profileSaveTask = getServer().getScheduler().runTaskTimer(
-                this,
-                playerProfileManager::saveAll,
-                autoSaveTicks,
-                autoSaveTicks
-        );
-
-        for (Player player : getServer().getOnlinePlayers()) {
-            PlayerProfile existing = playerProfileManager.getPlayerProfile(player.getUniqueId());
-            if (existing == null) {
-                playerProfileManager.addPlayerProfile(
-                        PlayerProfile.create(player.getUniqueId(), player.getName())
-                );
-            } else if (!existing.playerName().equals(player.getName())) {
-                playerProfileManager.changeName(existing, player.getName());
-            }
-        }
-
-        int bstatsPluginId = 34047;
-        new Metrics(this, bstatsPluginId);
-
-        frozenPlayerManager = new FrozenPlayerManager();
-
-        getServer().getPluginManager().registerEvents(new PlayerJoin(playerProfileManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerLogin(playerProfileManager, langManager, this), this);
-        getServer().getPluginManager().registerEvents(new FrozenPlayerEventHandler(frozenPlayerManager, configSettings, langManager), this);
-        getServer().getPluginManager().registerEvents(
-                new PlayerChatEvent(langManager, playerProfileManager, this),
-                this
-        );
-        getCommand("note").setExecutor(new NoteCommand(langManager, playerProfileManager, configSettings));
-        getCommand("warn").setExecutor(new WarnCommand(configSettings, playerProfileManager, langManager));
-        getCommand("kick").setExecutor(new KickCommand(langManager, playerProfileManager, configSettings));
-        getCommand("mute").setExecutor(new MuteCommand(langManager, playerProfileManager, configSettings));
-        getCommand("unmute").setExecutor(new UnmuteCommand(langManager, playerProfileManager));
-        getCommand("ban").setExecutor(new BanCommand(langManager, playerProfileManager, configSettings));
-        getCommand("unban").setExecutor(new UnbanCommand(langManager, playerProfileManager));
-        getCommand("tempban").setExecutor(new TempBanCommand(langManager, playerProfileManager, configSettings));
-        getCommand("tempmute").setExecutor(new TempMuteCommand(langManager, configSettings, playerProfileManager));
-        getCommand("freeze").setExecutor(new FreezeCommand(langManager, playerProfileManager, frozenPlayerManager));
-        getCommand("unfreeze").setExecutor(new UnfreezeCommand(langManager, playerProfileManager, frozenPlayerManager));
+    for (Player player : getServer().getOnlinePlayers()) {
+      PlayerProfile existing = playerProfileManager.getPlayerProfile(player.getUniqueId());
+      if (existing == null) {
+        playerProfileManager.addPlayerProfile(
+            PlayerProfile.create(player.getUniqueId(), player.getName()));
+      } else if (!existing.playerName().equals(player.getName())) {
+        playerProfileManager.changeName(existing, player.getName());
+      }
     }
 
-    @Override
-    public void onDisable() {
+    int bstatsPluginId = 34047;
+    new Metrics(this, bstatsPluginId);
 
-        if (profileSaveTask != null) {
-            profileSaveTask.cancel();
-        }
+    frozenPlayerManager = new FrozenPlayerManager();
 
-        if (playerProfileManager != null) {
-            playerProfileManager.saveAll();
-            playerProfileManager.close();
-        }
+    getServer().getPluginManager().registerEvents(new PlayerJoin(playerProfileManager), this);
+    getServer().getPluginManager().registerEvents(new PlayerLogin(playerProfileManager, langManager, this), this);
+    getServer().getPluginManager()
+        .registerEvents(new FrozenPlayerEventHandler(frozenPlayerManager, configSettings, langManager), this);
+    getServer().getPluginManager().registerEvents(
+        new PlayerChatEvent(langManager, playerProfileManager, this),
+        this);
+    getCommand("note").setExecutor(new NoteCommand(langManager, playerProfileManager, configSettings));
+    getCommand("warn").setExecutor(new WarnCommand(configSettings, playerProfileManager, langManager));
+    getCommand("kick").setExecutor(new KickCommand(langManager, playerProfileManager, configSettings));
+    getCommand("mute").setExecutor(new MuteCommand(langManager, playerProfileManager, configSettings));
+    getCommand("unmute").setExecutor(new UnmuteCommand(langManager, playerProfileManager));
+    getCommand("ban").setExecutor(new BanCommand(langManager, playerProfileManager, configSettings));
+    getCommand("unban").setExecutor(new UnbanCommand(langManager, playerProfileManager));
+    getCommand("tempban").setExecutor(new TempBanCommand(langManager, playerProfileManager, configSettings));
+    getCommand("tempmute").setExecutor(new TempMuteCommand(langManager, configSettings, playerProfileManager));
+    getCommand("freeze").setExecutor(new FreezeCommand(langManager, playerProfileManager, frozenPlayerManager));
+    getCommand("unfreeze").setExecutor(new UnfreezeCommand(langManager, playerProfileManager, frozenPlayerManager));
+  }
 
-        if (playerProfileLoader != null) {
-            playerProfileLoader.close();
-        }
+  @Override
+  public void onDisable() {
 
+    if (profileSaveTask != null) {
+      profileSaveTask.cancel();
     }
+
+    if (playerProfileManager != null) {
+      playerProfileManager.saveAll();
+      playerProfileManager.close();
+    }
+
+    if (playerProfileLoader != null) {
+      playerProfileLoader.close();
+    }
+
+  }
 }
